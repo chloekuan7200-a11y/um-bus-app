@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>澳大校巴 | UM Shuttle Bus</title>
+<style>
+  :root {
+    --primary: #00529b; --primary-light: #e6f0fa; --bg: #f0f2f5;
+    --text: #333; --text-light: #666; --border: #ddd;
+    --success: #00a65a; --warning: #f39c12; --danger: #d9534f;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, "PingFang TC", "Microsoft JhengHei", sans-serif; }
+  body { background: var(--bg); color: var(--text); padding-bottom: 60px; }
+  header { background: var(--primary); color: #fff; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10; }
+  .header-left { display: flex; align-items: center; gap: 10px; }
+  .header-left .logo { width: 32px; height: 32px; background: #fff; border-radius: 50%; color: var(--primary); display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 14px; }
+  .header-left h1 { font-size: 16px; font-weight: 600; line-height: 1.2; }
+  .header-left p { font-size: 11px; opacity: 0.8; }
+  .header-actions { display: flex; gap: 8px; }
+  .icon-btn { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4); color: #fff; padding: 4px 10px; border-radius: 20px; font-size: 12px; cursor: pointer; }
+  
+  .banner { background: #fff8e1; color: #b78103; font-size: 12px; padding: 10px 16px; border-bottom: 1px solid #f0e6c8; line-height: 1.5; }
+  .banner b { color: #d35400; }
+
+  .container { padding: 12px; max-width: 600px; margin: 0 auto; }
+  .card { background: #fff; border-radius: 12px; padding: 16px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+  .card-title { font-size: 14px; font-weight: 600; color: var(--primary); margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+
+  .form-group { margin-bottom: 16px; }
+  .form-group label { display: block; font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+  select, textarea { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; background: #fff; color: var(--text); outline: none; }
+  select:focus, textarea:focus { border-color: var(--primary); }
+  select { background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2300529b%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E"); background-repeat: no-repeat; background-position: right 12px center; background-size: 10px; padding-right: 30px; }
+
+  .stars { display: flex; gap: 8px; font-size: 32px; color: #ddd; cursor: pointer; }
+  .stars .star.active { color: var(--warning); }
+
+  .radio-group { display: flex; flex-direction: column; gap: 8px; }
+  .radio-item { display: flex; align-items: center; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; font-size: 14px; }
+  .radio-item input { margin-right: 10px; accent-color: var(--primary); width: 16px; height: 16px; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; }
+  .dot.green { background: #00c853; } .dot.yellow { background: #ffd600; } .dot.red { background: #d50000; }
+
+  .submit-btn { width: 100%; background: var(--success); color: #fff; border: none; padding: 14px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: 8px; }
+
+  .info-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #eee; font-size: 13px; }
+  .info-row:last-child { border-bottom: none; }
+  .tag-green { background: #e8f5e9; color: #2e7d32; padding: 2px 8px; border-radius: 4px; font-size: 11px; }
+  .tag-red { background: #ffebee; color: #c62828; padding: 2px 8px; border-radius: 4px; font-size: 11px; }
+  .route-list { padding-left: 20px; margin-top: 8px; font-size: 13px; color: var(--text-light); line-height: 1.8; }
+
+  .feedback-list .item { border-bottom: 1px solid #eee; padding: 12px 0; position: relative; }
+  .feedback-list .item:last-child { border-bottom: none; }
+  .item-head { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px; }
+  .item-head .tag { background: var(--primary-light); color: var(--primary); padding: 2px 6px; border-radius: 4px; }
+  .item-content { font-size: 14px; margin: 6px 0; }
+  .item-meta { display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: #999; margin-top: 8px; }
+  .delete-btn { background: none; border: 1px solid var(--danger); color: var(--danger); padding: 2px 8px; border-radius: 4px; font-size: 11px; cursor: pointer; }
+  
+  .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #fff; border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 8px 0; z-index: 20; }
+  .nav-item { display: flex; flex-direction: column; align-items: center; font-size: 11px; color: var(--text-light); cursor: pointer; gap: 4px; width: 50%; }
+  .nav-item.active { color: var(--primary); font-weight: bold; }
+  .nav-icon { font-size: 20px; }
+  .page { display: none; } .page.active { display: block; }
+
+  .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 100; justify-content: center; align-items: center; }
+  .modal.show { display: flex; }
+  .modal-content { background: #fff; padding: 20px; border-radius: 12px; text-align: center; max-width: 300px; width: 80%; }
+  .modal-content img { width: 100%; border: 1px solid #eee; border-radius: 8px; }
+  .modal-content p { margin-top: 10px; font-size: 14px; font-weight: bold; }
+  .close-modal { margin-top: 15px; background: var(--primary); color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; width: 100%; font-size: 14px;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <div class="logo">UM</div>
+    <div>
+      <h1 id="h-title">澳大校巴</h1>
+      <p id="h-subtitle">UM Shuttle Bus Platform</p>
+    </div>
+  </div>
+  <div class="header-actions">
+    <button class="icon-btn" id="qrBtn">📱 QR</button>
+    <button class="icon-btn" id="langBtn">EN</button>
+  </div>
+</header>
+
+<div class="banner" id="banner">
+  <b>⚠️ 學生自發平台聲明</b><br>
+  本平台並非澳門大學官方所有，數據僅供參考及向校方反映之用。
+</div>
+
+<!-- 頁面 1：意見 -->
+<div id="page-feedback" class="page active">
+  <div class="container">
+    <div class="card">
+      <div class="form-group">
+        <label id="lbl-time">乘車時段</label>
+        <select id="timeSlot">
+          <option value="morning">早上 (07:30 - 09:00)</option>
+          <option value="day">日間 (09:00 - 15:00)</option>
+          <option value="afternoon">下午 (15:00 - 17:00)</option>
+          <option value="evening">傍晚 (17:00 - 19:00)</option>
+          <option value="night">夜間 (19:00 - 23:15)</option>
+          <option value="weekend">週末及假日</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label id="lbl-category">意見類別</label>
+        <select id="category">
+          <option value="route">路線</option>
+          <option value="schedule">班次時間</option>
+          <option value="driver">司機服務</option>
+          <option value="vehicle">車輛狀況</option>
+          <option value="other">其他</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label id="lbl-station">相關站點</label>
+        <select id="station">
+          <option value="all">不指定</option>
+          <option value="pgh">PGH 研究生宿舍巴士站</option>
+          <option value="e4">E4 劉少榮樓</option>
+          <option value="n2">N2 大學會堂</option>
+          <option value="n6">N6 行政樓</option>
+          <option value="e11">E11 工學院/信息學院/理學院</option>
+          <option value="e21">E21 人文社科樓</option>
+          <option value="e32">E32 法學院</option>
+          <option value="s4">S4 研究生宿舍南四座(近連廊)</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label id="lbl-rating">整體評分</label>
+        <div class="stars" id="starRating">
+          <span class="star" data-val="1">★</span><span class="star" data-val="2">★</span><span class="star" data-val="3">★</span><span class="star" data-val="4">★</span><span class="star" data-val="5">★</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label id="lbl-crowd">車廂擁擠程度</label>
+        <div class="radio-group">
+          <label class="radio-item"><input type="radio" name="crowd" value="seats" checked><span class="dot green"></span> <span id="crowd-1">有座位</span></label>
+          <label class="radio-item"><input type="radio" name="crowd" value="standing"><span class="dot yellow"></span> <span id="crowd-2">需站立</span></label>
+          <label class="radio-item"><input type="radio" name="crowd" value="full"><span class="dot red"></span> <span id="crowd-3">非常擁擠/無法上車</span></label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label id="lbl-wait">等候時間</label>
+        <select id="waitTime">
+          <option value="lt5">少於 5 分鐘</option>
+          <option value="5to10">5 - 10 分鐘</option>
+          <option value="10to15">10 - 15 分鐘</option>
+          <option value="gt15">超過 15 分鐘</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label id="lbl-content">意見內容</label>
+        <textarea id="content" rows="3" placeholder="請輸入您的意見..."></textarea>
+      </div>
+
+      <button class="submit-btn" onclick="submitFeedback()">
+        <span>✈️</span> <span id="btn-submit">提交意見</span>
+      </button>
+    </div>
+
+    <div class="card feedback-list" id="feedbackList"></div>
+  </div>
+</div>
+
+<!-- 頁面 2：資訊 -->
+<div id="page-info" class="page">
+  <div class="container">
+    <div class="card">
+      <div class="card-title">🕒 <span id="info-title1">預計等候時間</span></div>
+      <div class="info-row">
+        <div><div style="font-weight:600;" id="info-d1">上課日 (一至五)</div></div>
+        <div style="text-align:right;"><div class="tag-green" id="info-t1">約 15 分鐘</div></div>
+      </div>
+      <div class="info-row">
+        <div><div style="font-weight:600;" id="info-d2">上課日 (循環行駛)</div></div>
+        <div style="text-align:right;"><div class="tag-green" id="info-t2">不固定</div></div>
+      </div>
+      <div class="info-row">
+        <div><div style="font-weight:600;" id="info-d3">星期六</div></div>
+        <div style="text-align:right;"><div class="tag-green" id="info-t3">約 15 分鐘</div></div>
+      </div>
+      <div class="info-row">
+        <div><div style="font-weight:600;" id="info-d4">星期日及公眾假期</div></div>
+        <div style="text-align:right;"><div class="tag-red" id="info-t4">暫停服務</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🛣️ <span id="info-title2">站點路線圖</span></div>
+      <div class="route-list">
+        <div>➔ E4 劉少榮樓：約 2 分鐘</div>
+        <div>➔ N2 大學會堂：約 4 分鐘</div>
+        <div>➔ N6 行政樓：約 6 分鐘</div>
+        <div>➔ E11 工學院：約 8 分鐘</div>
+        <div>➔ E21 人文社科樓：約 10 分鐘</div>
+        <div>➔ E32 法學院：約 12 分鐘</div>
+        <div>➔ S4 研究生宿舍：約 15 分鐘</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 底部導航 -->
+<div class="bottom-nav">
+  <div class="nav-item active" onclick="switchTab('feedback', this)">
+    <div class="nav-icon">💬</div>
+    <div id="nav-fb">意見</div>
+  </div>
+  <div class="nav-item" onclick="switchTab('info', this)">
+    <div class="nav-icon">ℹ️</div>
+    <div id="nav-info">資訊</div>
+  </div>
+</div>
+
+<!-- QR Code 彈窗 -->
+<div class="modal" id="qrModal">
+  <div class="modal-content">
+    <img id="qrImage" src="">
+    <p id="qr-text">掃碼進入平台</p>
+    <button class="close-modal" onclick="document.getElementById('qrModal').classList.remove('show')">關閉</button>
+  </div>
+</div>
+
+<script>
+// 設備唯一 ID（用於判斷是否能刪除）
+let deviceId = localStorage.getItem('um_device_id');
+if (!deviceId) {
+  deviceId = 'dev_' + Math.random().toString(36).substring(2, 9);
+  localStorage.setItem('um_device_id', deviceId);
+}
+
+let lang = localStorage.getItem('um_lang') || 'zh';
+let currentRating = 0;
+let feedbacks = JSON.parse(localStorage.getItem('um_feedback_v5') || '[]');
+
+// 翻譯字典（完全分離，沒有中英混排）
+const dict = {
+  zh: {
+    hTitle: '澳大校巴', hSubtitle: 'UM Shuttle Bus Platform',
+    banner: '<b>⚠️ 學生自發平台聲明</b><br>本平台並非澳門大學官方所有，數據僅供參考及向校方反映之用。',
+    lblTime: '乘車時段', lblCategory: '意見類別', lblStation: '相關站點',
+    lblRating: '整體評分', lblCrowd: '車廂擁擠程度', lblWait: '等候時間',
+    lblContent: '意見內容', btnSubmit: '提交意見', placeholder: '請輸入您的意見...',
+    navFb: '意見', navInfo: '資訊', qrText: '掃碼進入意見平台',
+    crowd1: '有座位', crowd2: '需站立', crowd3: '非常擁擠/無法上車',
+    empty: '暫無意見，快來發表第一條吧！',
+    deleteBtn: '🗑️ 刪除', confirmDel: '確定要刪除這條意見嗎？',
+    alertRating: '請點擊星星進行評分', alertContent: '請輸入意見內容',
+    alertSuccess: '提交成功！',
+    infoTitle1: '預計等候時間', infoTitle2: '站點路線圖',
+    infoD1: '上課日 (一至五)', infoD2: '上課日 (循環行駛)', infoD3: '星期六', infoD4: '星期日及公眾假期',
+    infoT1: '約 15 分鐘', infoT2: '不固定', infoT3: '約 15 分鐘', infoT4: '暫停服務',
+    options: {
+      timeSlot: ['早上 (07:30 - 09:00)', '日間 (09:00 - 15:00)', '下午 (15:00 - 17:00)', '傍晚 (17:00 - 19:00)', '夜間 (19:00 - 23:15)', '週末及假日'],
+      category: ['路線', '班次時間', '司機服務', '車輛狀況', '其他'],
+      station: ['不指定', 'PGH 研究生宿舍巴士站', 'E4 劉少榮樓', 'N2 大學會堂', 'N6 行政樓', 'E11 工學院/信息學院/理學院', 'E21 人文社科樓', 'E32 法學院', 'S4 研究生宿舍南四座(近連廊)'],
+      waitTime: ['少於 5 分鐘', '5 - 10 分鐘', '10 - 15 分鐘', '超過 15 分鐘']
+    }
+  },
+  en: {
+    hTitle: 'UM Shuttle Bus', hSubtitle: '澳大校巴',
+    banner: '<b>⚠️ Student-initiated Platform</b><br>Not an official UM platform. Data is for reference only.',
+    lblTime: 'Time Slot', lblCategory: 'Category', lblStation: 'Station',
+    lblRating: 'Overall Rating', lblCrowd: 'Crowdedness', lblWait: 'Waiting Time',
+    lblContent: 'Comments', btnSubmit: 'Submit Feedback', placeholder: 'Enter your comments...',
+    navFb: 'Feedback', navInfo: 'Info', qrText: 'Scan to open platform',
+    crowd1: 'Seats available', crowd2: 'Standing', crowd3: 'Full / Cannot Board',
+    empty: 'No feedback yet. Be the first!',
+    deleteBtn: '🗑️ Delete', confirmDel: 'Are you sure you want to delete?',
+    alertRating: 'Please select a rating.', alertContent: 'Please enter your comments.',
+    alertSuccess: 'Submitted!',
+    infoTitle1: 'Est. Wait Times', infoTitle2: 'Route Info',
+    infoD1: 'School Days (Mon-Fri)', infoD2: 'School Days (Continual)', infoD3: 'Saturdays', infoD4: 'Sundays & Public Holidays',
+    infoT1: 'Every 15 mins', infoT2: 'Variable', infoT3: 'Every 15 mins', infoT4: 'No Service',
+    options: {
+      timeSlot: ['Morning (07:30 - 09:00)', 'Day (09:00 - 15:00)', 'Afternoon (15:00 - 17:00)', 'Evening (17:00 - 19:00)', 'Night (19:00 - 23:15)', 'Weekend & Holiday'],
+      category: ['Route', 'Schedule', 'Driver Service', 'Vehicle Condition', 'Other'],
+      station: ['Not Specified', 'PGH Bus Stop', 'E4 Anthony Lau Building', 'N2 University Hall', 'N6 Administration Building', 'E11 Science & Technology', 'E21 Humanities & Social Sciences', 'E32 Faculty of Law', 'S4 Postgrad Houses South 4'],
+      waitTime: ['Less than 5 mins', '5 - 10 mins', '10 - 15 mins', 'More than 15 mins']
+    }
+  }
+};
+
+// 表單自動暫存機制（確保不小心重新整理時，填過的內容不消失）
+function saveDraft() {
+  const draft = {
+    timeSlotIdx: document.getElementById('timeSlot').selectedIndex,
+    categoryIdx: document.getElementById('category').selectedIndex,
+    stationIdx: document.getElementById('station').selectedIndex,
+    rating: currentRating,
+    crowd: document.querySelector('input[name="crowd"]:checked') ? document.querySelector('input[name="crowd"]:checked').value : 'seats',
+    waitTimeIdx: document.getElementById('waitTime').selectedIndex,
+    content: document.getElementById('content').value
+  };
+  localStorage.setItem('um_form_draft', JSON.stringify(draft));
+}
+
+function loadDraft() {
+  const draftStr = localStorage.getItem('um_form_draft');
+  if (!draftStr) return;
+  try {
+    const d = JSON.parse(draftStr);
+    if (d.timeSlotIdx) document.getElementById('timeSlot').selectedIndex = d.timeSlotIdx;
+    if (d.categoryIdx) document.getElementById('category').selectedIndex = d.categoryIdx;
+    if (d.stationIdx) document.getElementById('station').selectedIndex = d.stationIdx;
+    if (d.waitTimeIdx) document.getElementById('waitTime').selectedIndex = d.waitTimeIdx;
+    if (d.crowd) {
+      const rd = document.querySelector(`input[name="crowd"][value="${d.crowd}"]`);
+      if (rd) rd.checked = true;
+    }
+    if (d.content) document.getElementById('content').value = d.content;
+    if (d.rating) {
+      currentRating = d.rating;
+      document.querySelectorAll('#starRating .star').forEach(s => {
+        if (parseInt(s.dataset.val) <= currentRating) s.classList.add('active');
+        else s.classList.remove('active');
+      });
+    }
+  } catch(e) {}
+}
+
+// 綁定所有表單事件，一有改動就自動存草稿
+['timeSlot', 'category', 'station', 'waitTime', 'content'].forEach(id => {
+  document.getElementById(id).addEventListener('change', saveDraft);
+  document.getElementById(id).addEventListener('input', saveDraft);
+});
+document.querySelectorAll('input[name="crowd"]').forEach(radio => radio.addEventListener('change', saveDraft));
+
+function switchTab(tab, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById(`page-${tab}`).classList.add('active');
+  el.classList.add('active');
+}
+
+function setupStars() {
+  const stars = document.querySelectorAll('#starRating .star');
+  stars.forEach(star => {
+    star.addEventListener('click', (e) => {
+      currentRating = parseInt(e.target.dataset.val);
+      stars.forEach(s => {
+        if (parseInt(s.dataset.val) <= currentRating) s.classList.add('active');
+        else s.classList.remove('active');
+      });
+      saveDraft(); // 評分後自動存
+    });
+  });
+}
+
+function submitFeedback() {
+  const t = dict[lang];
+  const content = document.getElementById('content').value.trim();
+  if (currentRating === 0) return alert(t.alertRating);
+  if (!content) return alert(t.alertContent);
+
+  const crowdVal = document.querySelector('input[name="crowd"]:checked').value;
+
+  const newItem = {
+    id: Date.now().toString(),
+    deviceId: deviceId,
+    timeSlot: document.getElementById('timeSlot').value,
+    category: document.getElementById('category').value,
+    station: document.getElementById('station').value,
+    rating: currentRating,
+    crowd: crowdVal,
+    waitTime: document.getElementById('waitTime').value,
+    content: content,
+    date: new Date().toLocaleString(lang === 'zh' ? 'zh-HK' : 'en-US', { hour12: false })
+  };
+
+  feedbacks.unshift(newItem);
+  localStorage.setItem('um_feedback_v5', JSON.stringify(feedbacks));
+  
+  // 清空表單與草稿
+  document.getElementById('content').value = '';
+  currentRating = 0;
+  document.querySelectorAll('#starRating .star').forEach(s => s.classList.remove('active'));
+  document.getElementById('timeSlot').selectedIndex = 0;
+  document.getElementById('category').selectedIndex = 0;
+  document.getElementById('station').selectedIndex = 0;
+  document.getElementById('waitTime').selectedIndex = 0;
+  document.querySelector('input[name="crowd"][value="seats"]').checked = true;
+  localStorage.removeItem('um_form_draft');
+  
+  alert(t.alertSuccess);
+  renderList();
+}
+
+function deleteFeedback(id) {
+  if (!confirm(dict[lang].confirmDel)) return;
+  feedbacks = feedbacks.filter(f => f.id !== id);
+  localStorage.setItem('um_feedback_v5', JSON.stringify(feedbacks));
+  renderList();
+}
+
+function renderList() {
+  const list = document.getElementById('feedbackList');
+  const t = dict[lang];
+  if (feedbacks.length === 0) {
+    list.innerHTML = `<div style="text-align:center; color:#999; padding:20px; font-size:14px;">${t.empty}</div>`;
+    return;
+  }
+
+  // 將英文 key 轉換成對應語言的文字
+  const getLabel = (type, val) => {
+    const keys = { timeSlot: ['morning','day','afternoon','evening','night','weekend'], category: ['route','schedule','driver','vehicle','other'], station: ['all','pgh','e4','n2','n6','e11','e21','e32','s4'], waitTime: ['lt5','5to10','10to15','gt15'] };
+    const idx = keys[type].indexOf(val);
+    return idx > -1 ? t.options[type][idx] : val;
+  };
+
+  const crowdColor = { 'seats': '#00c853', 'standing': '#ffd600', 'full': '#d50000' };
+  const crowdLabel = { 'seats': t.crowd1, 'standing': t.crowd2, 'full': t.crowd3 };
+
+  list.innerHTML = feedbacks.map(f => {
+    const isMine = f.deviceId === deviceId;
+    return `
+    <div class="item">
+      <div class="item-head">
+        <span class="tag">${getLabel('category', f.category)}</span>
+        <span style="color:#f39c12;">${'★'.repeat(f.rating)}${'☆'.repeat(5-f.rating)}</span>
+      </div>
+      <div class="item-content">${f.content}</div>
+      <div style="font-size:12px; color:#666; margin-bottom:8px; background:#f9f9f9; padding:6px; border-radius:6px;">
+        📍 ${getLabel('station', f.station)} | ⏱ ${getLabel('timeSlot', f.timeSlot)} | ⏳ ${getLabel('waitTime', f.waitTime)}<br>
+        🚌 ${lang === 'zh' ? '擁擠度' : 'Crowd'}：<span style="color:${crowdColor[f.crowd]}; font-weight:bold;">●</span> ${crowdLabel[f.crowd]}
+      </div>
+      <div class="item-meta">
+        <span>${f.date}</span>
+        ${isMine ? `<button class="delete-btn" onclick="deleteFeedback('${f.id}')">${t.deleteBtn}</button>` : ''}
+      </div>
+    </div>
+    `;
+  }).join('');
+}
+
+// 語言切換邏輯
+function updateLanguage() {
+  const t = dict[lang];
+  document.getElementById('langBtn').textContent = lang === 'zh' ? 'EN' : '中';
+  
+  document.getElementById('h-title').textContent = t.hTitle;
+  document.getElementById('h-subtitle').textContent = t.hSubtitle;
+  document.getElementById('banner').innerHTML = t.banner;
+  document.getElementById('lbl-time').textContent = t.lblTime;
+  document.getElementById('lbl-category').textContent = t.lblCategory;
+  document.getElementById('lbl-station').textContent = t.lblStation;
+  document.getElementById('lbl-rating').textContent = t.lblRating;
+  document.getElementById('lbl-crowd').textContent = t.lblCrowd;
+  document.getElementById('lbl-wait').textContent = t.lblWait;
+  document.getElementById('lbl-content').textContent = t.lblContent;
+  document.getElementById('btn-submit').textContent = t.btnSubmit;
+  document.getElementById('content').placeholder = t.placeholder;
+  document.getElementById('nav-fb').textContent = t.navFb;
+  document.getElementById('nav-info').textContent = t.navInfo;
+  document.getElementById('qr-text').textContent = t.qrText;
+  document.getElementById('crowd-1').textContent = t.crowd1;
+  document.getElementById('crowd-2').textContent = t.crowd2;
+  document.getElementById('crowd-3').textContent = t.crowd3;
+
+  // 資訊頁面文字
+  document.getElementById('info-title1').textContent = t.infoTitle1;
+  document.getElementById('info-title2').textContent = t.infoTitle2;
+  document.getElementById('info-d1').textContent = t.infoD1;
+  document.getElementById('info-d2').textContent = t.infoD2;
+  document.getElementById('info-d3').textContent = t.infoD3;
+  document.getElementById('info-d4').textContent = t.infoD4;
+  document.getElementById('info-t1').textContent = t.infoT1;
+  document.getElementById('info-t2').textContent = t.infoT2;
+  document.getElementById('info-t3').textContent = t.infoT3;
+  document.getElementById('info-t4').textContent = t.infoT4;
+
+  // 更新下拉選單的文字（不改變選中的值）
+  const updateOptions = (id, arr) => {
+    const select = document.getElementById(id);
+    const currentVal = select.value;
+    Array.from(select.options).forEach((opt, i) => {
+      if (arr[i]) opt.textContent = arr[i];
+    });
+    select.value = currentVal; // 保持原本選中的項目
+  };
+  updateOptions('timeSlot', t.options.timeSlot);
+  updateOptions('category', t.options.category);
+  updateOptions('station', t.options.station);
+  updateOptions('waitTime', t.options.waitTime);
+
+  renderList();
+}
+
+document.getElementById('langBtn').onclick = () => {
+  lang = lang === 'zh' ? 'en' : 'zh';
+  localStorage.setItem('um_lang', lang);
+  updateLanguage();
+};
+
+document.getElementById('qrBtn').onclick = () => {
+  document.getElementById('qrImage').src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(window.location.href)}`;
+  document.getElementById('qrModal').classList.add('show');
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+  setupStars();
+  updateLanguage(); // 先更新語言
+  loadDraft();      // 再載入暫存的草稿
+  renderList();
+});
+</script>
+</body>
+</html>
